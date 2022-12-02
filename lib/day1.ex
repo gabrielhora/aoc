@@ -1,5 +1,4 @@
 defmodule Day1 do
-  @spec part1([String.t()]) :: integer
   def part1(lines) do
     lines
     |> Enum.chunk_while([], &chunk_on_space/2, &{:cont, &1})

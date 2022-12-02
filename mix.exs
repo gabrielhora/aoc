@@ -6,9 +6,11 @@ defmodule Aoc.MixProject do
       app: :aoc,
       version: "0.1.0",
       elixir: "~> 1.14",
-      elixirc_paths: ["lib", "test"],
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      prefered_cli_env: [
+        "test.watch": :test
+      ]
     ]
   end
 
@@ -22,8 +24,7 @@ defmodule Aoc.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
