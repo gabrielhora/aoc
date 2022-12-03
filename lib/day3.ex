@@ -18,14 +18,8 @@ defmodule Day3 do
     |> Enum.sum()
   end
 
-  defp score(map) when is_map(map) do
-    MapSet.to_list(map)
-    |> List.first()
-    |> :binary.first()
-    |> score()
-  end
-
-  defp score(letter) when is_integer(letter) do
-    if(letter in ?a..?z, do: letter - 96, else: letter - 64 + 26)
+  defp score(map) do
+    letter = Enum.at(map, 0) |> :binary.first()
+    if letter in ?a..?z, do: letter - 96, else: letter - 64 + 26
   end
 end
