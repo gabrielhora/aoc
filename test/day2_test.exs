@@ -12,6 +12,6 @@ defmodule Day2Test do
 
   test "part 2" do
     assert Day2.part2(@example) == 12
-    Logger.info("Day 1, Part 2: #{Day2.part2(@input)}")
+    Logger.info("Day 2, Part 2: #{Day2.part2(@input)}")
   end
 end
