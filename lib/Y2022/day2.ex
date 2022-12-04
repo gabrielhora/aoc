@@ -1,4 +1,4 @@
-defmodule Day2 do
+defmodule Y2022.Day2 do
   def part1(lines) do
     lines
     |> Enum.map(&String.split/1)

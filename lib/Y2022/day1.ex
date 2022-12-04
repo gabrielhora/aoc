@@ -1,4 +1,4 @@
-defmodule Day1 do
+defmodule Y2022.Day1 do
   def part1(lines) do
     lines
     |> Enum.chunk_while([], &chunk_on_space/2, &{:cont, &1})

@@ -1,4 +1,4 @@
-defmodule Day3 do
+defmodule Y2022.Day3 do
   def part1(lines) do
     lines
     |> Enum.map(&String.split_at(&1, div(String.length(&1), 2)))
