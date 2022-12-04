@@ -16,10 +16,9 @@ defmodule Day4 do
   end
 
   defp parse_range(range) do
-    [n1, n2] = String.split(range, "-")
-    {n1, _} = Integer.parse(n1)
-    {n2, _} = Integer.parse(n2)
-    Enum.to_list(n1..n2) |> MapSet.new()
+    String.split(range, "-")
+    |> then(fn [n1, n2] -> String.to_integer(n1)..String.to_integer(n2) end)
+    |> MapSet.new()
   end
 
   defp either_contains([s1, s2]) do
