@@ -1,34 +1,18 @@
 defmodule Y2022.Day5 do
   def part1(lines) do
     [crates, moves] = String.split(lines, "\n\n")
-    mover_9000(parse_stacks(crates), parse_moves(moves))
+
+    parse_moves(moves)
+    |> Enum.flat_map(fn {qty, from, to} -> for _ <- 0..(qty - 1), do: {1, from, to} end)
+    |> move(parse_stacks(crates))
   end
 
   def part2(lines) do
-    [crates, moves] = String.split(lines, "\n\n")
-    mover_9001(parse_stacks(crates), parse_moves(moves))
+    String.split(lines, "\n\n")
+    |> then(fn [c, m] -> parse_moves(m) |> move(parse_stacks(c)) end)
   end
 
-  defp mover_9000(stacks, moves) do
-    for {qty, from, to} <- moves, _ <- 0..(qty - 1) do
-      {1, from, to}
-    end
-    |> Enum.reduce(stacks, fn {_, from, to}, acc ->
-      [head | tail] = Enum.at(acc, from)
-
-      for {stack, i} <- Enum.with_index(acc) do
-        cond do
-          i == to -> [head] ++ stack
-          i == from -> tail
-          true -> stack
-        end
-      end
-    end)
-    |> Enum.map(&hd/1)
-    |> Enum.join()
-  end
-
-  defp mover_9001(stacks, moves) do
+  defp move(moves, stacks) do
     moves
     |> Enum.reduce(stacks, fn {qty, from, to}, acc ->
       {head, tail} = Enum.split(Enum.at(acc, from), qty)
