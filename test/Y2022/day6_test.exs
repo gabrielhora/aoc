@@ -7,12 +7,12 @@ defmodule Day6Test do
   @input File.read!("priv/Y2022/day6/input.txt")
 
   test "part 1" do
-    assert part1(@example) == 0
+    assert part1(@example) == 7
     IO.puts("\ny2022 day6 part1: #{part1(@input)}")
   end
 
   test "part 2" do
-    assert part2(@example) == 0
+    assert part2(@example) == 19
     IO.puts("\n#y2022 day6 part2: #{part2(@input)}")
   end
 end
