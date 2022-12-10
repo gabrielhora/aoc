@@ -58,10 +58,8 @@ defmodule Y2022.Day7 do
         {cur, (cur || 0) + size}
       end)
 
-    if current_dir == "/" do
-      state
-    else
-      add_size(state, size, Path.dirname(current_dir))
-    end
+    if current_dir == "/",
+      do: state,
+      else: add_size(state, size, Path.dirname(current_dir))
   end
 end

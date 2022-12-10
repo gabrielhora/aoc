@@ -8,7 +8,7 @@ defmodule Day7Test do
 
   test "part 1" do
     assert part1(@example) == 95437
-    #   IO.puts("\ny2022 day7 part1: #{part1(@input)}")
+    IO.puts("\ny2022 day7 part1: #{part1(@input)}")
   end
 
   test "part 2" do
