@@ -1,8 +1,6 @@
 defmodule Y2022.Day11 do
   def part1(input) do
-    monkeys = parse_monkeys(input)
-
-    monkeys
+    parse_monkeys(input)
     |> play_rounds(20, &div(&1, 3))
     |> Enum.map(& &1.moves)
     |> Enum.sort(:desc)
