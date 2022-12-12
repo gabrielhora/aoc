@@ -2,7 +2,8 @@ defmodule Y2022.Day11 do
   def part1(input) do
     monkeys = parse_monkeys(input)
 
-    play_rounds(20, monkeys, &div(&1, 3))
+    monkeys
+    |> play_rounds(20, &div(&1, 3))
     |> Enum.map(& &1.moves)
     |> Enum.sort(:desc)
     |> Enum.take(2)
@@ -15,31 +16,33 @@ defmodule Y2022.Day11 do
     # use the least common denominator to reduce the worry sizes
     divisor = monkeys |> Enum.map(& &1.test) |> lcm()
 
-    play_rounds(10000, monkeys, &rem(&1, divisor))
+    monkeys
+    |> play_rounds(10000, &rem(&1, divisor))
     |> Enum.map(& &1.moves)
     |> Enum.sort(:desc)
     |> Enum.take(2)
     |> then(fn [a, b] -> a * b end)
   end
 
-  defp play_rounds(0, monkeys, _worry_func), do: monkeys
+  defp play_rounds(monkeys, 0, _worry_func), do: monkeys
 
-  defp play_rounds(round, monkeys, worry_func) do
-    monkeys = play_monkeys(0, monkeys, worry_func)
-    play_rounds(round - 1, monkeys, worry_func)
+  defp play_rounds(monkeys, round, worry_func) do
+    monkeys |> play_monkeys(0, worry_func) |> play_rounds(round - 1, worry_func)
   end
 
-  defp play_monkeys(idx, monkeys, _worry_func) when idx == length(monkeys), do: monkeys
+  defp play_monkeys(monkeys, idx, _worry_func) when idx == length(monkeys), do: monkeys
 
-  defp play_monkeys(idx, monkeys, worry_func) do
+  defp play_monkeys(monkeys, idx, worry_func) do
     monkey = Enum.at(monkeys, idx)
-    monkeys = move_items(monkey.items, monkey, idx, monkeys, worry_func)
-    play_monkeys(idx + 1, monkeys, worry_func)
+
+    monkeys
+    |> move_items(monkey.items, monkey, idx, worry_func)
+    |> play_monkeys(idx + 1, worry_func)
   end
 
-  defp move_items([], _monkey, _monkey_idx, monkeys, _worry_func), do: monkeys
+  defp move_items(monkeys, [], _monkey, _monkey_idx, _worry_func), do: monkeys
 
-  defp move_items([worry | rest], monkey, monkey_idx, monkeys, worry_func) do
+  defp move_items(monkeys, [worry | rest], monkey, monkey_idx, worry_func) do
     worry = op(monkey.op, worry) |> worry_func.()
 
     target_idx =
@@ -47,8 +50,9 @@ defmodule Y2022.Day11 do
         do: monkey.if_true,
         else: monkey.if_false
 
-    monkeys = move_item(monkeys, monkey_idx, target_idx, worry)
-    move_items(rest, monkey, monkey_idx, monkeys, worry_func)
+    monkeys
+    |> move_item(monkey_idx, target_idx, worry)
+    |> move_items(rest, monkey, monkey_idx, worry_func)
   end
 
   defp move_item(monkeys, from, to, item) do
