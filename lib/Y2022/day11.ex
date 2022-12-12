@@ -2,8 +2,8 @@ defmodule Y2022.Day11 do
   def part1(input) do
     monkeys = parse_monkeys(input)
 
-    play_rounds(20, monkeys, List.duplicate(0, length(monkeys)), &div(&1, 3))
-    |> elem(1)
+    play_rounds(20, monkeys, &div(&1, 3))
+    |> Enum.map(& &1.moves)
     |> Enum.sort(:desc)
     |> Enum.take(2)
     |> then(fn [a, b] -> a * b end)
@@ -13,32 +13,33 @@ defmodule Y2022.Day11 do
     monkeys = parse_monkeys(input)
 
     # use the least common denominator to reduce the worry sizes
-    divisor = monkeys |> Enum.map(fn {m, _} -> m.test end) |> lcm()
+    divisor = monkeys |> Enum.map(& &1.test) |> lcm()
 
-    play_rounds(10000, monkeys, List.duplicate(0, length(monkeys)), &rem(&1, divisor))
-    |> elem(1)
+    play_rounds(10000, monkeys, &rem(&1, divisor))
+    |> Enum.map(& &1.moves)
     |> Enum.sort(:desc)
     |> Enum.take(2)
     |> then(fn [a, b] -> a * b end)
   end
 
-  defp play_rounds(0, monkeys, moves, _worry_func), do: {monkeys, moves}
+  defp play_rounds(0, monkeys, _worry_func), do: monkeys
 
-  defp play_rounds(round, monkeys, moves, worry_func) do
-    {monkeys, moves} = play_monkeys(0, monkeys, moves, worry_func)
-    play_rounds(round - 1, monkeys, moves, worry_func)
+  defp play_rounds(round, monkeys, worry_func) do
+    monkeys = play_monkeys(0, monkeys, worry_func)
+    play_rounds(round - 1, monkeys, worry_func)
   end
 
-  defp play_monkeys(idx, monkeys, moves, _worry_func) when idx == length(monkeys),
-    do: {monkeys, moves}
+  defp play_monkeys(idx, monkeys, _worry_func) when idx == length(monkeys), do: monkeys
 
-  defp play_monkeys(idx, monkeys, moves, worry_func) do
-    {monkey, idx} = Enum.at(monkeys, idx)
-    {monkeys, moves} = move_items(monkey.items, monkey, idx, monkeys, moves, worry_func)
-    play_monkeys(idx + 1, monkeys, moves, worry_func)
+  defp play_monkeys(idx, monkeys, worry_func) do
+    monkey = Enum.at(monkeys, idx)
+    monkeys = move_items(monkey.items, monkey, idx, monkeys, worry_func)
+    play_monkeys(idx + 1, monkeys, worry_func)
   end
 
-  defp move_items([worry | rest], monkey, monkey_idx, monkeys, moves, worry_func) do
+  defp move_items([], _monkey, _monkey_idx, monkeys, _worry_func), do: monkeys
+
+  defp move_items([worry | rest], monkey, monkey_idx, monkeys, worry_func) do
     worry = op(monkey.op, worry) |> worry_func.()
 
     target_idx =
@@ -46,20 +47,18 @@ defmodule Y2022.Day11 do
         do: monkey.if_true,
         else: monkey.if_false
 
-    moves = List.replace_at(moves, monkey_idx, (Enum.at(moves, monkey_idx) || 0) + 1)
     monkeys = move_item(monkeys, monkey_idx, target_idx, worry)
-    move_items(rest, monkey, monkey_idx, monkeys, moves, worry_func)
+    move_items(rest, monkey, monkey_idx, monkeys, worry_func)
   end
-
-  defp move_items([], _monkey, _monkey_idx, monkeys, moves, _worry_func), do: {monkeys, moves}
 
   defp move_item(monkeys, from, to, item) do
     monkeys
+    |> Enum.with_index()
     |> Enum.map(fn {m, i} ->
       cond do
-        i == to -> {%{m | items: [item | m.items]}, i}
-        i == from -> {%{m | items: tl(m.items)}, i}
-        true -> {m, i}
+        i == to -> %{m | items: [item | m.items]}
+        i == from -> %{m | items: tl(m.items), moves: m.moves + 1}
+        true -> m
       end
     end)
   end
@@ -69,9 +68,7 @@ defmodule Y2022.Day11 do
   defp op({"old + " <> _, num}, item), do: num + item
 
   defp parse_monkeys(input) do
-    String.split(input, "\n\n")
-    |> Enum.map(&monkey_data/1)
-    |> Enum.with_index()
+    String.split(input, "\n\n") |> Enum.map(&monkey_data/1)
   end
 
   defp monkey_data(monkey) do
@@ -100,7 +97,8 @@ defmodule Y2022.Day11 do
         ),
       test: caps["test"] |> String.to_integer(),
       if_true: caps["if_true"] |> String.to_integer(),
-      if_false: caps["if_false"] |> String.to_integer()
+      if_false: caps["if_false"] |> String.to_integer(),
+      moves: 0
     }
   end
 
