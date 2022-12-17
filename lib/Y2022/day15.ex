@@ -1,59 +1,96 @@
 defmodule Y2022.Day15 do
-  # FIXME: Still haven't figure out a way to solve for the input data without looping through everything.
-  #  Part 1 is slow but manageble and computing a grid 4_000_000 by 4_000_000 won't work for part 2.
-  #  I'll come back to this later.
+  @doc """
+  That was freaking hard! But I'm very happy I figured it out :D Code could probably be better but
+  that will do for now (already spend too much time here)!
 
-  def part1(input, row, range) do
+  My solution is to calculate the "signal strength" of the sensors at a particular Y row. This takes
+  the format of a range from a..b which are the X coordinates that one sensor "senses" in that Y
+  row. After that I merge all sensor strength into the the minimum amount of ranges possible
+  (important for part 2).
+
+  For part 1 we know the Y row we are interested in, so we calculate the "signal strength" of all
+  sensors at that Y get the size of the range.
+
+  For part 2 we need to find a hole somewhere in a 4mil x 4mil grid. I do that by looping through
+  the Y axis, calculating the signal strength of all sensors at that Y and looking for the hole,
+  i.e. if the calculation of the signal strenth returns two different ranges.
+
+  The second part is still a bit slow but very doable, it runs in about 9 seconds on my machine.
+  """
+
+  def part1(input, row) do
     data = parse(input)
-    beacons = data |> Enum.map(&elem(&1, 1)) |> MapSet.new()
+    sensors = data |> Enum.map(fn {s, _, d} -> {s, d} end)
 
-    range
-    |> Enum.reduce(MapSet.new(), fn x, acc ->
-      coords =
-        for {s, _, d} <- data do
-          if m_dist(s, {x, row}) <= d do
-            {x, row}
-          end
-        end
-        |> MapSet.new()
-
-      MapSet.union(acc, coords)
-    end)
-    |> then(&MapSet.difference(&1, beacons))
-    |> then(&MapSet.reject(&1, fn x -> x == nil end))
-    |> MapSet.size()
+    sensors
+    |> Enum.reduce([], fn {s, d}, acc -> [sensor_x_range(s, d, row) | acc] end)
+    |> Enum.reject(&(&1 == nil))
+    |> then(&Enum.sort/1)
+    |> then(&merge_ranges(&1, -1_000_000_000..1_000_000_000))
+    |> then(fn [a..b] -> b - a end)
   end
 
   def part2(input, space) do
     data = parse(input)
+    sensors = data |> Enum.map(fn {s, _, d} -> {s, d} end)
 
     0..space
-    |> Enum.find_value(fn x ->
-      ys = find_ys(x, space, data)
+    |> Enum.find_value(fn y ->
+      ranges =
+        sensors
+        |> Enum.reduce([], fn {s, d}, acc -> [sensor_x_range(s, d, y) | acc] end)
+        |> Enum.reject(&(&1 == nil))
+        |> then(&Enum.sort/1)
+        |> then(&merge_ranges(&1, 0..space))
 
-      if MapSet.size(ys) != space + 1 do
-        # find missing y and halt
-        y = 0..space |> Enum.find(fn y -> !MapSet.member?(ys, {x, y}) end)
-        {x, y}
+      if ranges != [0..space] do
+        [_..x, _] = ranges
+        {x + 1, y}
       end
     end)
     |> then(fn {x, y} -> x * 4_000_000 + y end)
   end
 
-  defp find_ys(x, space, data) do
-    0..space
-    |> Enum.reduce(MapSet.new(), fn y, acc ->
-      coords =
-        for {s, _, d} <- data do
-          if m_dist(s, {x, y}) <= d do
-            {x, y}
-          end
-        end
-        |> MapSet.new()
+  # reduce while we can't reduce anymore
+  defp merge_ranges(ranges = [h | t], max_range) when is_list(ranges) do
+    new_ranges =
+      Enum.reduce(t, [h], fn r, acc ->
+        m = merge_ranges(hd(acc), r, max_range)
+        List.flatten(Enum.reverse(m), tl(acc))
+      end)
 
-      MapSet.union(acc, coords)
-    end)
-    |> then(&MapSet.reject(&1, fn x -> x == nil end))
+    result =
+      if length(new_ranges) < length(ranges),
+        do: merge_ranges(new_ranges, max_range),
+        else: new_ranges
+
+    Enum.sort(result)
+  end
+
+  defp merge_ranges(a = a1..a2, b = b1..b2, m1..m2) do
+    a1 = max(a1, m1)
+    a2 = min(a2, m2)
+    b1 = max(b1, m1)
+    b2 = min(b2, m2)
+
+    cond do
+      # overlap, merge them
+      !Range.disjoint?(a, b) -> [min(a1, b1)..max(a2, b2)]
+      # ends are "touching", merge them
+      a2 < b1 && abs(a2 - b1) == 1 -> [a1..b2]
+      b2 < a1 && abs(b2 - a1) == 1 -> [b1..a2]
+      # no overlap, sort them
+      true -> [min(a, b), max(a, b)]
+    end
+  end
+
+  defp sensor_x_range({sx, sy}, dist, row_y) do
+    dy = abs(row_y - sy)
+
+    if dy > dist,
+      # sensor does not reach this row_y
+      do: nil,
+      else: (sx - (dist - dy))..(sx + (dist - dy))
   end
 
   defp m_dist({ax, ay}, {bx, by}), do: abs(ax - bx) + abs(ay - by)
