@@ -3,11 +3,13 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"hora.dev/aoc/2022/utils/math"
+	"hora.dev/aoc/2022/utils/set"
 )
 
 //go:embed input.txt
@@ -23,11 +25,11 @@ func part1() {
 	s := time.Now()
 	ans := 0
 	for _, bp := range blueprints {
-		geodes := solve(bp, []state{{oreRobot: 1, minLeft: 24}}, map[state]*struct{}{})
+		geodes := solve(bp, []state{{oreRobot: 1, minLeft: 24}})
 		fmt.Printf("blueprint: %d, geodes: %v\n", bp.id, geodes)
 		ans += bp.id * int(geodes)
 	}
-	fmt.Printf("part1: %v (%s)\n", ans, time.Now().Sub(s)) // 2m36s
+	fmt.Printf("part1: %v (%s)\n", ans, time.Since(s)) // 2m36s
 }
 
 func part2() {
@@ -35,22 +37,23 @@ func part2() {
 	s := time.Now()
 	ans := 1
 	for _, bp := range blueprints {
-		geodes := solve(bp, []state{{oreRobot: 1, minLeft: 32}}, map[state]*struct{}{})
+		geodes := solve(bp, []state{{oreRobot: 1, minLeft: 32}})
 		fmt.Printf("blueprint: %d, geodes: %v\n", bp.id, geodes)
 		ans *= int(geodes)
 	}
-	fmt.Printf("part2: %v (%s)\n", ans, time.Now().Sub(s)) // 1m32s
+	fmt.Printf("part2: %v (%s)\n", ans, time.Since(s)) // 1m32s
 }
 
-func solve(bp blueprint, q []state, visited map[state]*struct{}) float64 {
-	best := float64(0)
+func solve(bp blueprint, q []state) int {
+	visited := set.Set[state]{}
+	best := 0
 	for len(q) > 0 {
 		var cur state
 		cur, q = q[0], q[1:]
-		if _, ok := visited[cur]; ok {
+		if visited.Contains(cur) {
 			continue
 		}
-		visited[cur] = nil
+		visited.Push(cur)
 		// don't care about nodes with less geodes (and minutes left) than what we already found
 		if cur.geode < best {
 			continue
@@ -132,13 +135,13 @@ func solve(bp blueprint, q []state, visited map[state]*struct{}) float64 {
 }
 
 type state struct {
-	ore, clay, obsidian, geode                     float64
-	oreRobot, clayRobot, obsidianRobot, geodeRobot float64
+	ore, clay, obsidian, geode                     int
+	oreRobot, clayRobot, obsidianRobot, geodeRobot int
 	minLeft                                        int
 }
 
 type cost struct {
-	ore, clay, obsidian float64
+	ore, clay, obsidian int
 }
 
 type blueprint struct {
@@ -153,12 +156,12 @@ func parse(input string) []blueprint {
 	for _, line := range strings.Split(input, "\n") {
 		caps := reLine.FindStringSubmatch(line)
 		id, _ := strconv.Atoi(caps[1])
-		oreOre, _ := strconv.ParseFloat(caps[2], 64)
-		clayOre, _ := strconv.ParseFloat(caps[3], 64)
-		obsOre, _ := strconv.ParseFloat(caps[4], 64)
-		obsClay, _ := strconv.ParseFloat(caps[5], 64)
-		geoOre, _ := strconv.ParseFloat(caps[6], 64)
-		geoObs, _ := strconv.ParseFloat(caps[7], 64)
+		oreOre, _ := strconv.Atoi(caps[2])
+		clayOre, _ := strconv.Atoi(caps[3])
+		obsOre, _ := strconv.Atoi(caps[4])
+		obsClay, _ := strconv.Atoi(caps[5])
+		geoOre, _ := strconv.Atoi(caps[6])
+		geoObs, _ := strconv.Atoi(caps[7])
 		res = append(res, blueprint{
 			id:            id,
 			oreRobot:      cost{ore: oreOre},

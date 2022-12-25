@@ -3,40 +3,57 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"hora.dev/aoc/2022/utils/set"
 	"strconv"
 	"strings"
 )
 
-//go:embed example.txt
-var example string
-
-type parsedInput struct {
-	elf1Start int
-	elf1End   int
-	elf2Start int
-	elf2End   int
-}
-
-func parse(input string) []parsedInput {
-	lines := strings.Split(input, "\n")
-	var result []parsedInput
-	for _, line := range lines {
-		pairs := strings.Split(line, ",")
-		p1Start, _ := strconv.Atoi(strings.Split(pairs[0], "-")[0])
-		p1End, _ := strconv.Atoi(strings.Split(pairs[0], "-")[1])
-		p2Start, _ := strconv.Atoi(strings.Split(pairs[1], "-")[0])
-		p2End, _ := strconv.Atoi(strings.Split(pairs[1], "-")[1])
-
-		result = append(result, parsedInput{
-			elf1Start: p1Start,
-			elf1End:   p1End,
-			elf2Start: p2Start,
-			elf2End:   p2End,
-		})
-	}
-	return result
-}
+//go:embed input.txt
+var input string
 
 func main() {
-	fmt.Printf("%+v", parse(example))
+	data := parse(input)
+	part1(data)
+	part2(data)
+}
+
+func part1(data [][]int) {
+	ans := 0
+	for _, d := range data {
+		a := set.FromRange(d[0], d[1])
+		b := set.FromRange(d[2], d[3])
+		if a.Intersection(b).Equal(b) || b.Intersection(a).Equal(a) {
+			ans += 1
+		}
+	}
+	fmt.Printf("part 1: %d\n", ans)
+}
+
+func part2(data [][]int) {
+	ans := 0
+	for _, d := range data {
+		a := set.FromRange(d[0], d[1])
+		b := set.FromRange(d[2], d[3])
+		if len(a.Intersection(b)) != 0 {
+			ans += 1
+		}
+	}
+	fmt.Printf("part 2: %d\n", ans)
+}
+
+func parse(input string) [][]int {
+	var res [][]int
+	for _, line := range strings.Split(input, "\n") {
+		p := strings.Split(line, ",")
+		p0 := strings.Split(p[0], "-")
+		p1 := strings.Split(p[1], "-")
+
+		a, _ := strconv.Atoi(p0[0])
+		b, _ := strconv.Atoi(p0[1])
+		c, _ := strconv.Atoi(p1[0])
+		d, _ := strconv.Atoi(p1[1])
+
+		res = append(res, []int{a, b, c, d})
+	}
+	return res
 }
