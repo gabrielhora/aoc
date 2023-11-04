@@ -14,7 +14,7 @@
     (= char-at-coords \#)))
 
 (defn count-trees [forest right-moves down-moves]
-  (let [rows (range 0 (count forest) down-moves)
+  (let [rows (range 0 (count forest) down-moves)            ; generate a seq of rows to visit
         trees (map-indexed
                 (fn [x y] (tree? forest (* x right-moves) y))
                 rows)]
