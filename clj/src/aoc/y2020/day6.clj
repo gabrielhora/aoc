@@ -38,5 +38,4 @@
 
 (comment
   (part1 input)
-  (part2 input)
-  )
+  (part2 input))

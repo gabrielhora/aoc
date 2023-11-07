@@ -36,12 +36,16 @@
           (= snd-letter letter))))
 
 (defn part1 [input]
-  (let [rules (parse-input input)]
-    (count (filter true? (map is-valid-part1? rules)))))
+  (->> (parse-input input)
+       (map is-valid-part1?)
+       (filter true?)
+       count))
 
 (defn part2 [input]
-  (let [rules (parse-input input)]
-    (count (filter true? (map is-valid-part2? rules)))))
+  (->> (parse-input input)
+       (map is-valid-part2?)
+       (filter true?)
+       count))
 
 (comment
   (part1 input)
