@@ -1,5 +1,5 @@
 module hora.dev/aoc
 
-go 1.19
+go 1.21
 
-require golang.org/x/exp v0.0.0-20221217163422-3c43f8badb15
+require golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
