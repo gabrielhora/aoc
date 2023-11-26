@@ -1,20 +1,15 @@
 (ns aoc.y2020.day7
   (:require [aoc.y2020.utils :refer [split]]
-            [clojure.string :as str]
-            [clojure.walk :as walk]))
+            [clojure.java.io :as io]
+            [clojure.string :as str]))
 
-(def example "light red bags contain 1 bright white bag, 2 muted yellow bags.\ndark orange bags contain 3 bright white bags, 4 muted yellow bags.\nbright white bags contain 1 shiny gold bag.\nmuted yellow bags contain 2 shiny gold bags, 9 faded blue bags.\nshiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.\ndark olive bags contain 3 faded blue bags, 4 dotted black bags.\nvibrant plum bags contain 5 faded blue bags, 6 dotted black bags.\nfaded blue bags contain no other bags.\ndotted black bags contain no other bags.")
+(def input (slurp (io/resource "aoc/y2020/day7.txt")))
 
 (defn str->keyword [s] (keyword (str/replace s " " "-")))
 
 (defn parse-bag
-  "Parse a bag and it's contents.
-
-  Transforms
-    light red bags contain 1 bright white bag, 2 muted yellow bags.
-  Into
-    {:light-red ([1 :bright-white [2 :muted-yellow])}
-  "
+  "in:  light red bags contain 1 bright white bag, 2 muted yellow bags.
+   out: {:light-red ([1 :bright-white [2 :muted-yellow])}"
   [line]
   (let [parts (re-seq #"(^|\d+)\s*(\w+ \w+) bag" line)
         [[_ _ bag] & contents] parts
@@ -28,23 +23,37 @@
        (map parse-bag)
        (into {})))
 
-(defn find-bag
-  ([bags lookup-bag]
-   (find-bag bags lookup-bag (first (keys bags))))
+(defn contains-bag?
+  [all-bags bag lookup]
+  (->> bag
+       all-bags
+       (some (fn [[_ colour]]
+               (or
+                 (= colour lookup)
+                 (contains-bag? all-bags colour lookup))))))
 
-  ([bags lookup-bag start]
-   (let [inside-bags (map second (get bags start))]
-     (if (contains? inside-bags lookup-bag)
-       true
-       (find-bag))
-     inside-bags)))
+(defn part1 [input]
+  (let [all-bags (parse input)]
+    (->> all-bags
+         (filter (fn [[bag _]]
+                   (contains-bag? all-bags bag :shiny-gold)))
+         count)))
+
+(defn count-bags
+  [all-bags lookup]
+  (->> lookup
+       all-bags
+       (reduce
+         (fn [acc [n bag]]
+           (+ acc n (* n (count-bags all-bags bag))))
+         0)))
+
+(defn part2 [input]
+  (let [all-bags (parse input)]
+    (count-bags all-bags :shiny-gold)))
 
 (comment
-  (let [bags (parse example)]
-    (find-bag bags :shiny-gold)
-    )
-
-  (parse-bag "light red bags contain 1 bright white bag, 2 muted yellow bags.")
-  (parse-bag "bright white bags contain 1 shiny gold bag.")
-  (parse-bag "faded blue bags contain no other bags.")
+  (part1 input)
+  (part2 input)
   )
+

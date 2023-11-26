@@ -15,8 +15,9 @@ var example string
 var input string
 
 func main() {
-	part1(input)
-	part2(input)
+	part1Result := part1(input)
+	fmt.Printf("part 1: %d\n", part1Result)
+	part2(input, part1Result)
 }
 
 func part1(input string) int {
@@ -31,7 +32,6 @@ func part1(input string) int {
 			break
 		}
 	}
-	fmt.Printf("part 1: %d\n", result)
 	return result
 }
 
@@ -47,9 +47,9 @@ func findInSums(coll []int, lookup int) bool {
 	return false
 }
 
-func part2(input string) {
+func part2(input string, target int) {
 	nums := parse(input)
-	sumSet := findSumSet(nums, part1(input))
+	sumSet := findSumSet(nums, target)
 	smallest, largest := slices.Min(sumSet), slices.Max(sumSet)
 	fmt.Printf("part 2: %d\n", smallest+largest)
 }

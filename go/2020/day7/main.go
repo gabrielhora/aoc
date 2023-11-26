@@ -45,9 +45,9 @@ func findBag(bags map[string]bag, start string, lookup string) bool {
 }
 
 func countBags(bags map[string]bag, lookup string) int {
-	acc := 1
+	acc := 0
 	for _, b := range bags[lookup].contents {
-		acc += b.count * countBags(bags, b.name)
+		acc += b.count + b.count*countBags(bags, b.name)
 	}
 	return acc
 }
