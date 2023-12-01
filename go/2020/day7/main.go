@@ -31,7 +31,7 @@ func part1(input string) {
 }
 
 func part2(input string) {
-	result := countBags(parse(input), "shiny gold") - 1 // -1 for the initial bag
+	result := countBags(parse(input), "shiny gold")
 	fmt.Printf("part 2: %d", result)
 }
 

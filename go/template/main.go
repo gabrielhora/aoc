@@ -2,15 +2,12 @@ package main
 
 import _ "embed"
 
-//go:embed example.txt
-var example string
-
 //go:embed input.txt
 var input string
 
 func main() {
-	part1(example)
-	part2(example)
+	part1(input)
+	part2(input)
 }
 
 func part1(input string) {
