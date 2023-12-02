@@ -1,6 +1,5 @@
 (ns aoc.y2023.day1
-  (:require [clojure.core.match :refer [match]]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
 (def input (slurp (io/resource "aoc/y2023/day1.txt")))
@@ -26,19 +25,11 @@
                  "nine"  9})
 
 (defn find-number-word
-  "asdfnine -> 9"
   [text]
-  (let [result (reduce
-                 (fn [acc char]
-                   (let [acc (str char acc)
-                         val (get words->int acc)]
-                     (if (nil? val)
-                       acc
-                       (reduced {:found val}))))
-                 (reverse (seq text)))]
-    (match [result]
-           [{:found val}] val
-           :else nil)))
+  (->> (keys words->int)
+       (filter #(str/ends-with? text %1))
+       first
+       (get words->int)))
 
 (defn find-numbers-part2
   [text]
@@ -46,10 +37,10 @@
        seq
        (reduce
          (fn [[nums acc] char]
-           (if (Character/isDigit ^Character char)
+           (if (Character/isDigit ^Character char)          ; if is digit append numeric value to acc
              [(conj nums (Character/digit ^Character char 10)) acc]
-             (let [new-acc (str acc char)
-                   int-val (find-number-word new-acc)]
+             (let [new-acc (str acc char)                   ; otherwise try to find digit word and add
+                   int-val (find-number-word new-acc)]      ; it's numeric value to the acc
                (if (nil? int-val)
                  [nums new-acc]
                  [(conj nums int-val) new-acc]))))
