@@ -102,30 +102,20 @@ func part2(input string) {
 
 func parse(input string) ([]int64, []seedMap) {
 	maps := strings.Split(input, "\n\n")
-
-	seedsS := strings.Split(maps[0][7:], " ")
+	ss := strings.Split(maps[0][7:], " ")
 	var seeds []int64
-	for _, s := range seedsS {
+	for _, s := range ss {
 		n, _ := strconv.ParseInt(s, 10, 64)
 		seeds = append(seeds, n)
 	}
-
-	seedToSoil := parseMap(maps[1])
-	soilToFertilizer := parseMap(maps[2])
-	fertilizerToWater := parseMap(maps[3])
-	waterToLight := parseMap(maps[4])
-	lightToTemperature := parseMap(maps[5])
-	temperatureToHumidity := parseMap(maps[6])
-	humidityToLocation := parseMap(maps[7])
-
 	return seeds, []seedMap{
-		seedToSoil,
-		soilToFertilizer,
-		fertilizerToWater,
-		waterToLight,
-		lightToTemperature,
-		temperatureToHumidity,
-		humidityToLocation,
+		parseMap(maps[1]), // seed -> soil,
+		parseMap(maps[2]), // soil -> fertilizer,
+		parseMap(maps[3]), // fertilizer -> water,
+		parseMap(maps[4]), // water -> light,
+		parseMap(maps[5]), // light -> temperature,
+		parseMap(maps[6]), // temperature -> humidity,
+		parseMap(maps[7]), // humidity -> location,
 	}
 }
 
@@ -161,7 +151,6 @@ type intRange struct {
 func (r intRange) get(at int64) int64 {
 	if at >= r.src && at < r.src+r.length {
 		return r.dst + at - r.src
-	} else {
-		return -1
 	}
+	return -1
 }
