@@ -44,24 +44,24 @@ func part2(input string) {
 
 	// all paths will end in Z in the MMC of them
 
-	fmt.Printf("part 2: %d\n", mmc(steps...))
+	fmt.Printf("part 2: %d\n", lcm(steps...))
 }
 
 // adapted from the internets :)
-func mmc(numbers ...int64) int64 {
+func lcm(numbers ...int64) int64 {
 	gcd := func(a int64, b int64) int64 {
 		for b != 0 {
 			a, b = b, a%b
 		}
 		return a
 	}
-	lcm := func(a int64, b int64) int64 {
+	lcmPair := func(a int64, b int64) int64 {
 		return int64(math.Abs(float64(a*b))) / gcd(a, b)
 	}
 
 	result := int64(1)
 	for _, num := range numbers {
-		result = lcm(result, num)
+		result = lcmPair(result, num)
 	}
 	return result
 }
