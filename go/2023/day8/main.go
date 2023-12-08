@@ -66,22 +66,19 @@ func mmc(numbers ...int64) int64 {
 	return result
 }
 
-func walkMap(start string, origInst []int, dir directions, stepFn func(string) bool) int {
-	var inst []int
+func walkMap(start string, inst []int, dir directions, stepFn func(string) bool) int {
 	var curInst int
 	var steps int
 	pos := start
 
 	for {
 		steps += 1
-		if len(inst) == 0 {
-			inst = append([]int{}, origInst...)
-		}
 		curInst, inst = inst[0], inst[1:]
 		pos = dir[pos][curInst]
 		if !stepFn(pos) {
 			break
 		}
+		inst = append(inst, curInst) // append instruction back to the queue
 	}
 
 	return steps
