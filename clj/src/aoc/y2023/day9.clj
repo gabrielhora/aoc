@@ -30,13 +30,6 @@
       (last coll)
       (+ (last coll) (find-next nl)))))
 
-(defn find-previous
-  [coll]
-  (let [nl (next-layer coll)]
-    (if (every? zero? nl)
-      (first coll)
-      (- (first coll) (find-previous nl)))))
-
 (defn part1
   [input]
   (->> input
@@ -48,7 +41,8 @@
   [input]
   (->> input
        parse
-       (map find-previous)
+       (map reverse)
+       (map find-next)
        (reduce +)))
 
 (comment
