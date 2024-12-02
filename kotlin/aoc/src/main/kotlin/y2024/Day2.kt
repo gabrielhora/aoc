@@ -1,16 +1,14 @@
 package y2024
 
+import utils.listOfInts
+
 class Day2 {
     fun part1(input: String): Int {
-        return input.lines()
-            .map { line -> line.split("\\s+".toRegex()).map { it.toInt() } }
-            .count(::isSafePart1)
+        return input.lines().listOfInts().count(::isSafePart1)
     }
 
     fun part2(input: String): Int {
-        return input.lines()
-            .map { line -> line.split("\\s+".toRegex()).map { it.toInt() } }
-            .count(::isSafePart2)
+        return input.lines().listOfInts().count(::isSafePart2)
     }
 
     private fun isSafePart1(items: List<Int>): Boolean {
@@ -25,8 +23,7 @@ class Day2 {
 
         // remove each one and check again
         for (i in 0..items.size) {
-            val filteredList = items.filterIndexed { j, _ -> i != j }
-            if (isSafePart1(filteredList)) {
+            if (isSafePart1(items.filterIndexed { j, _ -> i != j })) {
                 return true
             }
         }

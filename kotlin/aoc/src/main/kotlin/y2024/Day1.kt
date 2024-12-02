@@ -1,5 +1,6 @@
 package y2024
 
+import utils.listOfInts
 import kotlin.math.absoluteValue
 
 class Day1 {
@@ -18,7 +19,7 @@ class Day1 {
 
     private fun splitLists(input: String) = input
         .lines()
-        .map { line -> line.split("\\s+".toRegex()).map { it.toInt() } }
+        .listOfInts()
         .map { (first, second) -> first to second }
         .unzip()
 }
