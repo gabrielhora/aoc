@@ -1,48 +1,39 @@
 package y2024
 
-class Day4 {
+import utils.mapIgnoreErrors
 
-    // TODO: clean up the code
+class Day4 {
 
     fun part1(input: String): Int {
         val matrix = input.lines()
-        val combinations = mutableListOf<String>()
+        val directions = listOf(
+            listOf(0 to 0, -1 to 1, -2 to 2, -3 to 3), // diag up
+            listOf(0 to 0, 0 to 1, 0 to 2, 0 to 3),    // right
+            listOf(0 to 0, 1 to 1, 2 to 2, 3 to 3),    // diag down
+            listOf(0 to 0, 1 to 0, 2 to 0, 3 to 0)     // down
+        )
 
-        val maxRowIdx = matrix.size - 1
-        val maxColIdx = matrix[0].length - 1
+        var result = 0
 
-        for (rowIdx in 0..maxRowIdx) {
-            for (colIdx in 0..maxColIdx) {
-                // diag up
-                if (rowIdx >= 3 && colIdx <= maxColIdx - 3) {
-                    combinations += (0..3).map { matrix[rowIdx - it][colIdx + it] }.joinToString("")
-                }
-
-                // right
-                if (colIdx <= maxColIdx - 3) {
-                    combinations += (0..3).map { matrix[rowIdx][colIdx + it] }.joinToString("")
-                }
-
-                // diag down
-                if (rowIdx <= maxRowIdx - 3 && colIdx <= maxColIdx - 3) {
-                    combinations += (0..3).map { matrix[rowIdx + it][colIdx + it] }.joinToString("")
-
-                }
-
-                // down
-                if (rowIdx <= maxRowIdx - 3) {
-                    combinations += (0..3).map { matrix[rowIdx + it][colIdx] }.joinToString("")
-                }
+        for (rowIdx in matrix.indices) {
+            for (colIdx in 0..<matrix[0].length) {
+                result += directions
+                    .map { dir ->
+                        dir
+                            .mapIgnoreErrors { matrix[rowIdx + it.first][colIdx + it.second] }
+                            .joinToString("")
+                    }
+                    .count { it == "XMAS" || it == "SAMX" }
             }
         }
 
-        return combinations.count { it == "XMAS" || it == "SAMX" }
+        return result
     }
 
     fun part2(input: String): Int {
-        val matrix = input.lines().map { it.toList() }
-
-        val threeByThrees = matrix
+        return input
+            .lines()
+            .map { it.toList() }
             .windowed(3)
             .flatMap { rows ->
                 (0..rows[0].size - 3)
@@ -53,12 +44,10 @@ class Day4 {
                             rows[2].subList(col, col + 3),
                         )
                     }
+            }.count {
+                val x1 = listOf(it[0][0], it[1][1], it[2][2]).joinToString("")
+                val x2 = listOf(it[2][0], it[1][1], it[0][2]).joinToString("")
+                (x1 == "MAS" || x1 == "SAM") && (x2 == "MAS" || x2 == "SAM")
             }
-
-        return threeByThrees.count {
-            val x1 = listOf(it[0][0], it[1][1], it[2][2]).joinToString("")
-            val x2 = listOf(it[2][0], it[1][1], it[0][2]).joinToString("")
-            (x1 == "MAS" || x1 == "SAM") && (x2 == "MAS" || x2 == "SAM")
-        }
     }
 }

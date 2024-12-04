@@ -6,9 +6,13 @@ fun List<String>.listOfInts() = this.map { line -> line.split("\\s+".toRegex()).
 
 fun String.findAll(pattern: String) = Regex(pattern).findAll(this)
 
-fun String.replaceCharAt(index: Int, newChar: Char): String {
-    if (index < 0 || index >= length) {
-        throw IndexOutOfBoundsException()
+fun <T, R> Iterable<T>.mapIgnoreErrors(transform: (T) -> R): List<R> {
+    val acc = mutableListOf<R>()
+    for (item in this) {
+        try {
+            acc += transform(item)
+        } catch (_: Exception) {
+        }
     }
-    return substring(0, index) + newChar + substring(index + 1)
+    return acc
 }
