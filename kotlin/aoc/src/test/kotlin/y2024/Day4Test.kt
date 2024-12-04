@@ -16,7 +16,7 @@ class Day4Test {
 
     @Test
     fun part2() {
-        assertEquals(0, day.part2(readFile("/y2024/${file}_sample2.txt")))
-        assertEquals(0, day.part2(readFile("/y2024/${file}.txt")))
+        assertEquals(9, day.part2(readFile("/y2024/${file}_sample.txt")))
+        assertEquals(2046, day.part2(readFile("/y2024/${file}.txt")))
     }
 }
