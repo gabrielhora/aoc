@@ -14,26 +14,51 @@ var sample string
 var input string
 
 func main() {
-	part1(input)
+	//part1(input)
+	part2(input) // 1455 too low
 }
 
 func part1(input string) {
 	grid := utils.GridStr(input, "\n", "")
 	guard, dir := findGuard(grid)
 	blocks := findBlocks(grid)
-	visited := moveGuard(guard, dir, grid, blocks)
+	visited, _ := moveGuard(guard, dir, grid, blocks, false)
 	fmt.Printf("part 1: %d\n", len(visited))
 }
 
-func moveGuard(start [2]int, dir [2]int, grid [][]string, blocks [][2]int) [][2]int {
+func part2(input string) {
+	grid := utils.GridStr(input, "\n", "")
+	guard, dir := findGuard(grid)
+	blocks := findBlocks(grid)
+
+	possibleNewBlockPos, _ := moveGuard(guard, dir, grid, blocks, false)
+	blocks = append(blocks, [2]int{0, 0})
+	ans := 0
+	// try to put new blocks (index 0 is the guard position)
+	for i, newBlockPos := range possibleNewBlockPos[1:] {
+		if i%100 == 0 {
+			fmt.Printf("checking %d of %d\n", i, len(possibleNewBlockPos)-1)
+		}
+		blocks[len(blocks)-1] = newBlockPos
+		if _, loops := moveGuard(guard, dir, grid, blocks, true); loops {
+			ans += 1
+		}
+	}
+	fmt.Printf("part 2: %d\n", ans)
+}
+
+func moveGuard(start [2]int, dir [2]int, grid [][]string, blocks [][2]int, detectLoops bool) ([][2]int, bool) {
 	rows, cols := len(grid), len(grid[0])
 	currentPos := start
 	var visited [][2]int
 	for {
 		//printGrid(rows, cols, currentPos, dir, visited, blocks)
 
-		if !slices.Contains(visited, currentPos) {
+		if detectLoops || !slices.Contains(visited, currentPos) {
 			visited = append(visited, currentPos)
+		}
+		if detectLoops && detectLoop(visited) {
+			return visited, true
 		}
 		newPos := [2]int{currentPos[0] + dir[0], currentPos[1] + dir[1]}
 		// if guard is outside, return
@@ -43,12 +68,41 @@ func moveGuard(start [2]int, dir [2]int, grid [][]string, blocks [][2]int) [][2]
 		// if new pos is blocked
 		if isBlocked(blocks, newPos) {
 			dir = turn90Degrees(dir)
+			currentPos = [2]int{currentPos[0] + dir[0], currentPos[1] + dir[1]}
 			continue
 		}
 		// otherwise move there
 		currentPos = newPos
 	}
-	return visited
+	return visited, false
+}
+
+func detectLoop(visited [][2]int) bool {
+	if len(visited) < 2 {
+		return false
+	}
+	search := visited[len(visited)-2:]
+	for i := len(visited) - 2; i >= 2; i-- {
+		window := visited[i-2 : i]
+		if utils.SlicesEqual(search, window) {
+			return true
+		}
+	}
+	return false
+}
+
+func detectLoop2(visited [][2]int) bool {
+	if len(visited) < 4 {
+		return false
+	}
+	for i := 2; i < len(visited)/2+1; i++ {
+		s1 := visited[len(visited)-i:]
+		s2 := visited[len(visited)-i*2 : len(visited)-i]
+		if utils.SlicesEqual(s1, s2) {
+			return true
+		}
+	}
+	return false
 }
 
 func findGuard(grid [][]string) ([2]int, [2]int) {
