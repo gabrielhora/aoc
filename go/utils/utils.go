@@ -15,7 +15,7 @@ func ToInt64(str string) int64 {
 
 func IntList(str, sep string) []int64 {
 	var res []int64
-	for _, s := range strings.Split(str, sep) {
+	for _, s := range strings.Split(strings.TrimSpace(str), sep) {
 		res = append(res, ToInt64(s))
 	}
 	return res
