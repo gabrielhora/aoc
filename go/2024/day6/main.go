@@ -134,24 +134,26 @@ func isBlocked(blocks [][2]int, pos [2]int) bool {
 	return false
 }
 
-func turn90Degrees(dir [2]int) [2]int {
-	// up -> right
-	if dir[0] == -1 && dir[1] == 0 {
-		return [2]int{0, 1}
-	}
-	// right -> down
-	if dir[0] == 0 && dir[1] == 1 {
-		return [2]int{1, 0}
-	}
-	// down -> left
-	if dir[0] == 1 && dir[1] == 0 {
-		return [2]int{0, -1}
-	}
-	// left -> up
-	if dir[0] == 0 && dir[1] == -1 {
-		return [2]int{-1, 0}
-	}
+var (
+	up    = [2]int{-1, 0}
+	down  = [2]int{1, 0}
+	left  = [2]int{0, -1}
+	right = [2]int{0, 1}
+)
 
+func turn90Degrees(dir [2]int) [2]int {
+	if dir == up {
+		return right
+	}
+	if dir == right {
+		return down
+	}
+	if dir == down {
+		return left
+	}
+	if dir == left {
+		return up
+	}
 	panic("not possible")
 }
 
