@@ -14,8 +14,8 @@ var sample string
 var input string
 
 func main() {
-	//part1(input)
-	part2(input) // 1455 too low
+	part1(input)
+	part2(input)
 }
 
 func part1(input string) {
@@ -27,20 +27,23 @@ func part1(input string) {
 }
 
 func part2(input string) {
+	fmt.Print("calculating part 2, takes a few seconds...\n")
+
 	grid := utils.GridStr(input, "\n", "")
 	guard, dir := findGuard(grid)
 	blocks := findBlocks(grid)
 
 	possibleNewBlockPos, _ := moveGuard(guard, dir, grid, blocks, false)
+	possibleNewBlockPos = possibleNewBlockPos[1:] // index 0 is the guard pos
 	blocks = append(blocks, [2]int{0, 0})
+
 	ans := 0
-	// try to put new blocks (index 0 is the guard position)
-	for i, newBlockPos := range possibleNewBlockPos[1:] {
-		if i%100 == 0 {
+	for i, newBlockPos := range possibleNewBlockPos {
+		if i%1000 == 0 {
 			fmt.Printf("checking %d of %d\n", i, len(possibleNewBlockPos)-1)
 		}
 		blocks[len(blocks)-1] = newBlockPos
-		if _, loops := moveGuard(guard, dir, grid, blocks, true); loops {
+		if _, isLooping := moveGuard(guard, dir, grid, blocks, true); isLooping {
 			ans += 1
 		}
 	}
@@ -51,13 +54,19 @@ func moveGuard(start [2]int, dir [2]int, grid [][]string, blocks [][2]int, detec
 	rows, cols := len(grid), len(grid[0])
 	currentPos := start
 	var visited [][2]int
+	moves := 0
 	for {
+		// print the grid with visited blocks for debugging
 		//printGrid(rows, cols, currentPos, dir, visited, blocks)
+		moves += 1
 
-		if detectLoops || !slices.Contains(visited, currentPos) {
-			visited = append(visited, currentPos)
-		}
-		if detectLoops && detectLoop(visited) {
+		if !detectLoops {
+			if !slices.Contains(visited, currentPos) {
+				visited = append(visited, currentPos)
+			}
+		} else if moves > 10000 {
+			// this "stupid" loop detection is faster than actually looking for a loop
+			// in the visited slice, so I'll leave it like this
 			return visited, true
 		}
 		newPos := [2]int{currentPos[0] + dir[0], currentPos[1] + dir[1]}
@@ -68,7 +77,6 @@ func moveGuard(start [2]int, dir [2]int, grid [][]string, blocks [][2]int, detec
 		// if new pos is blocked
 		if isBlocked(blocks, newPos) {
 			dir = turn90Degrees(dir)
-			currentPos = [2]int{currentPos[0] + dir[0], currentPos[1] + dir[1]}
 			continue
 		}
 		// otherwise move there
@@ -77,6 +85,8 @@ func moveGuard(start [2]int, dir [2]int, grid [][]string, blocks [][2]int, detec
 	return visited, false
 }
 
+// not used, just assuming a maxium number of movements is faster than this
+// I'll leave it here for reference... maybe I'll figure out a better way
 func detectLoop(visited [][2]int) bool {
 	if len(visited) < 2 {
 		return false
@@ -91,35 +101,12 @@ func detectLoop(visited [][2]int) bool {
 	return false
 }
 
-func detectLoop2(visited [][2]int) bool {
-	if len(visited) < 4 {
-		return false
-	}
-	for i := 2; i < len(visited)/2+1; i++ {
-		s1 := visited[len(visited)-i:]
-		s2 := visited[len(visited)-i*2 : len(visited)-i]
-		if utils.SlicesEqual(s1, s2) {
-			return true
-		}
-	}
-	return false
-}
-
 func findGuard(grid [][]string) ([2]int, [2]int) {
 	for ri, r := range grid {
 		for ci, c := range r {
 			p := [2]int{ri, ci}
 			if c == "^" {
 				return p, [2]int{-1, 0}
-			}
-			if c == ">" {
-				return p, [2]int{0, 1}
-			}
-			if c == "<" {
-				return p, [2]int{0, -1}
-			}
-			if c == "v" {
-				return p, [2]int{1, 0}
 			}
 		}
 	}
