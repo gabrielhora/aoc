@@ -44,3 +44,11 @@ func SlicesEqual[T comparable](slice1, slice2 []T) bool {
 	}
 	return true
 }
+
+func Abs[T int | int64](a, b T) T {
+	res := a - b
+	if res < 0 {
+		return res * -1
+	}
+	return res
+}
