@@ -15,16 +15,27 @@ var input string
 
 func main() {
 	part1(input)
+	part2(input)
 }
 
 func part1(input string) {
-	ans := checksum(compact(parse(input)))
+	data, _ := parse(input)
+	ans := checksum(compact(data))
 	fmt.Printf("part 1: %v\n", ans)
+}
+
+func part2(input string) {
+	data, maxFileID := parse(input)
+	ans := checksum(compactBlock(data, maxFileID))
+	fmt.Printf("part 2: %v\n", ans)
 }
 
 func checksum(data []int) int64 {
 	var result int64
 	for i, val := range data {
+		if val == -1 {
+			continue
+		}
 		if val == -1 {
 			break
 		}
@@ -54,7 +65,55 @@ func nextFreeIdx(data []int, start int) int {
 	panic("no free space?")
 }
 
-func parse(input string) []int {
+func compactBlock(data []int, maxFileID int) []int {
+	// needle moving backwards in `data`
+	curPos := len(data) - 1
+
+	for fileID := maxFileID; fileID >= 0; fileID-- {
+		// find fileID positions
+		fileBlockStart, fileBlockEnd, fileBlockSize := -1, -1, 0
+		for ; curPos >= 0; curPos-- {
+			if fileBlockEnd == -1 && data[curPos] == fileID {
+				fileBlockEnd = curPos
+				continue
+			}
+			if fileBlockEnd > 0 && data[curPos] != fileID {
+				fileBlockStart = curPos + 1
+				fileBlockSize = fileBlockEnd - fileBlockStart + 1
+				break
+			}
+		}
+
+		freeStart := nextFreeBlock(data, fileBlockSize, fileBlockStart)
+		if freeStart == -1 {
+			continue // no free block big enough
+		}
+
+		// swap whole block
+		for i := 0; i < fileBlockSize; i++ {
+			data[freeStart+i], data[fileBlockStart+i] = data[fileBlockStart+i], data[freeStart+i]
+		}
+	}
+	return data
+}
+
+func nextFreeBlock(data []int, size, cutoff int) int {
+	for i := 0; i < cutoff; i++ {
+		if data[i] == -1 {
+			for j := i + 1; j < len(data); j++ {
+				if data[j] != -1 {
+					if j-i >= size {
+						return i
+					}
+					break
+				}
+			}
+		}
+	}
+	return -1
+}
+
+func parse(input string) ([]int, int) {
 	ints := utils.IntList(input, "")
 	var expanded []int
 	idx := 0
@@ -70,5 +129,5 @@ func parse(input string) []int {
 			}
 		}
 	}
-	return expanded
+	return expanded, idx - 1
 }
