@@ -3,9 +3,10 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"hora.dev/aoc/utils"
 	"slices"
 	"strings"
+
+	"hora.dev/aoc/utils"
 )
 
 //go:embed input.txt
@@ -23,7 +24,7 @@ func part1(input string) {
 	parts := strings.Split(input, "\n\n")
 	orders := parseOrders(parts[0])
 	updates := parseUpdates(parts[1])
-	pageDeps := pageDependencies(orders)
+	pageDeps := pageGraph(orders)
 	valids, _ := splitValidAndInvalid(updates, pageDeps)
 
 	var ans int64
@@ -37,7 +38,7 @@ func part2(input string) {
 	parts := strings.Split(input, "\n\n")
 	orders := parseOrders(parts[0])
 	updates := parseUpdates(parts[1])
-	pageDeps := pageDependencies(orders)
+	pageDeps := pageGraph(orders)
 	_, invalids := splitValidAndInvalid(updates, pageDeps)
 
 	var fixed [][]int64
@@ -102,15 +103,11 @@ func isInCorrectOrder(pages []int64, pageIdx int, deps map[int64][]int64) (int, 
 	return -1, true
 }
 
-// pageDependencies builds a dependency list, as in pages that must come first, for each page
-func pageDependencies(orders [][]int64) map[int64][]int64 {
+// pageGraph builds a dependency list, as in pages that must come first, for each page
+func pageGraph(orders [][]int64) map[int64][]int64 {
 	deps := make(map[int64][]int64)
 	for _, ord := range orders {
-		if _, ok := deps[ord[0]]; ok {
-			deps[ord[0]] = append(deps[ord[0]], ord[1])
-		} else {
-			deps[ord[0]] = []int64{ord[1]}
-		}
+		deps[ord[0]] = append(deps[ord[0]], ord[1])
 	}
 	return deps
 }

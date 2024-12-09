@@ -3,8 +3,9 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"hora.dev/aoc/utils"
 	"strings"
+
+	"hora.dev/aoc/utils"
 )
 
 //go:embed sample.txt
