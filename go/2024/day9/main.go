@@ -33,13 +33,9 @@ func part2(input string) {
 func checksum(data []int) int64 {
 	var result int64
 	for i, val := range data {
-		if val == -1 {
-			continue
+		if val != -1 {
+			result += int64(i) * int64(val)
 		}
-		if val == -1 {
-			break
-		}
-		result += int64(i) * int64(val)
 	}
 	return result
 }

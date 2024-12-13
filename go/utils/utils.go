@@ -24,10 +24,7 @@ func IntList(str, sep string) []int64 {
 func GridStr(input string, lineSep, colSep string) [][]string {
 	var grid [][]string
 	for _, row := range strings.Split(input, lineSep) {
-		var line []string
-		for _, col := range strings.Split(row, colSep) {
-			line = append(line, col)
-		}
+		line := append([]string{}, strings.Split(row, colSep)...)
 		grid = append(grid, line)
 	}
 	return grid
