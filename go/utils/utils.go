@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math"
 	"strconv"
 	"strings"
 )
@@ -48,4 +49,8 @@ func Abs[T int | int64](a, b T) T {
 		return res * -1
 	}
 	return res
+}
+
+func Pow[T int | int64](a, b T) T {
+	return T(math.Pow(float64(a), float64(b)))
 }
