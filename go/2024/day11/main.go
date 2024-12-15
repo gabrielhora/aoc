@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"hora.dev/aoc/utils"
 	"sync"
-	"time"
 )
 
 //go:embed sample.txt
@@ -21,56 +20,38 @@ func main() {
 
 func part1(input string) {
 	stones := utils.IntList(input, " ")
-	start := time.Now()
 	var ans int64
 	for _, stone := range stones {
 		ans += blink(stone, 25)
 	}
-	fmt.Printf("part 1: %+v, %v\n", ans, time.Since(start))
+	fmt.Printf("part 1: %+v\n", ans)
 }
 
 func part2(input string) {
 	stones := utils.IntList(input, " ")
-	start := time.Now()
-	results := make(chan int64, len(stones))
-	var wg sync.WaitGroup
-	wg.Add(len(stones))
-	for _, stone := range stones {
-		go func() {
-			defer wg.Done()
-			results <- blink(stone, 75)
-		}()
-	}
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
 	var ans int64
-	for result := range results {
-		ans += result
+	for _, stone := range stones {
+		ans += blink(stone, 75)
 	}
-	fmt.Printf("part 2: %v, %+v\n", ans, time.Since(start))
+	fmt.Printf("part 2: %+v\n", ans)
 }
 
 var memoLock sync.RWMutex
 var memo = map[[2]int64]int64{}
 
 func blink(stone int64, n int64) (res int64) {
-	key := [2]int64{n, stone}
-
 	memoLock.RLock()
-	v, ok := memo[key]
+	v, cached := memo[[2]int64{n, stone}]
 	memoLock.RUnlock()
-
-	if ok {
+	if cached {
 		return v
-	} else {
-		defer func() {
-			memoLock.Lock()
-			memo[key] = res
-			memoLock.Unlock()
-		}()
 	}
+
+	defer func() {
+		memoLock.Lock()
+		memo[[2]int64{n, stone}] = res
+		memoLock.Unlock()
+	}()
 
 	if n == 0 {
 		res = 1
