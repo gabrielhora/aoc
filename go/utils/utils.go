@@ -54,3 +54,47 @@ func Abs[T int | int64](a, b T) T {
 func Pow[T int | int64](a, b T) T {
 	return T(math.Pow(float64(a), float64(b)))
 }
+
+func CountDigits(num int64) int64 {
+	var count int64
+	for num != 0 {
+		num = num / 10
+		count += 1
+	}
+	return count
+}
+
+func ChunkNumber(num int64, digits int64, chunkSize int64) []int64 {
+	var chunks []int64
+	var acc int64
+	var count int64
+	num = reverseNum(num)
+	for range digits {
+		digit := num % 10
+		acc = acc*10 + digit
+		num /= 10
+		count++
+		if count == chunkSize {
+			chunks = append(chunks, acc)
+			acc, count = 0, 0
+		}
+	}
+	if count > 0 {
+		chunks = append(chunks, acc)
+	}
+	return chunks
+}
+
+func reverseNum(num int64) int64 {
+	var reversed int64
+	for num != 0 {
+		digit := num % 10
+		reversed = reversed*10 + digit
+		num /= 10
+	}
+	return reversed
+}
+
+func setDigit(num int64, pos int64, rep int64) int64 {
+	return num%pos + (rep * pos) + ((num/pos)/10)*pos*10
+}

@@ -32,7 +32,7 @@ func part1(input string) {
 		}
 		if pos < 0 {
 			pos = size - (pos * -1)
-		} else if pos > 99 {
+		} else if pos >= size {
 			pos = pos - size
 		}
 		if pos == 0 {
