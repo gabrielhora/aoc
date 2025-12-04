@@ -15,8 +15,6 @@ var sample string
 //go:embed input.txt
 var input string
 
-// only even length can be compared
-
 func main() {
 	part1(input)
 	part2(input)
