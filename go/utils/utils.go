@@ -2,6 +2,7 @@ package utils
 
 import (
 	"math"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,19 @@ func ToInt64(str string) int64 {
 func IntList[T int | int64](str, sep string) []T {
 	var res []T
 	for _, s := range strings.Split(strings.TrimSpace(str), sep) {
+		res = append(res, T(ToInt64(s)))
+	}
+	return res
+}
+
+var spaces = regexp.MustCompile(`\s+`)
+
+func IntListBySpaces[T int | int64](str string) []T {
+	var res []T
+	for _, s := range spaces.Split(str, -1) {
+		if s == "" {
+			continue
+		}
 		res = append(res, T(ToInt64(s)))
 	}
 	return res
@@ -95,6 +109,16 @@ func reverseNum(num int64) int64 {
 	return reversed
 }
 
-func setDigit(num int64, pos int64, rep int64) int64 {
-	return num%pos + (rep * pos) + ((num/pos)/10)*pos*10
+func Filter[T any](s []T, fn func(T) bool) []T {
+	var sf []T
+	for _, item := range s {
+		if !fn(item) {
+			sf = append(sf, item)
+		}
+	}
+	return sf
+}
+
+func IsBlank(s string) bool {
+	return strings.TrimSpace(s) == ""
 }
