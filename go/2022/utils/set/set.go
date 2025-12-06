@@ -8,6 +8,10 @@ func (s Set[T]) Push(val T) {
 	s[val] = nil
 }
 
+func (s Set[T]) Del(key T) {
+	delete(s, key)
+}
+
 // Intersection returns a new Set with values that are in both sets
 func (s Set[T]) Intersection(b Set[T]) Set[T] {
 	inter := Set[T]{}

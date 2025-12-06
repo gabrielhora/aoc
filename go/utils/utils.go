@@ -14,10 +14,10 @@ func ToInt64(str string) int64 {
 	return val
 }
 
-func IntList(str, sep string) []int64 {
-	var res []int64
+func IntList[T int | int64](str, sep string) []T {
+	var res []T
 	for _, s := range strings.Split(strings.TrimSpace(str), sep) {
-		res = append(res, ToInt64(s))
+		res = append(res, T(ToInt64(s)))
 	}
 	return res
 }
